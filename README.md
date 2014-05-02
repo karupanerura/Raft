@@ -29,7 +29,7 @@ TODO!!
 
 # SUPPORTS
 
-TODO: \#raft at irc.perl.org is also available.
+TODO: #raft at irc.perl.org is also available.
 
 # LICENSE
 

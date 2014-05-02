@@ -18,7 +18,7 @@ my %_ESCAPE = (
 
 sub default_content_type { 'application/json; charset=utf-8' }
 
-sub finalize {
+sub format :method {
     my ($self, $req) = @_;
 
     # defense from JSON hijacking
@@ -27,7 +27,7 @@ sub finalize {
         $self->status(403);
         $self->content_type('text/html; charset=utf-8');
         $self->content("Your request may be JSON hijacking.\nIf you are not an attacker, please add 'X-Requested-With' header to each request.");
-        return $self->SUPER::finalize($req);
+        return;
     }
 
     # response
@@ -38,8 +38,6 @@ sub finalize {
     my $output = $_JSON->encode($content);
     $output =~ s!([+<>])!$_ESCAPE{$1}!og;
     $self->content($output);
-
-    return $self->SUPER::finalize($req);
 }
 
 1;

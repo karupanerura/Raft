@@ -20,12 +20,11 @@ sub initialize {
 
 sub default_content_type { "text/html; charset=utf-8" }
 
-sub finalize {
+sub format :method {
     my ($self, $req) = @_;
     my $content = $self->xslate->render($self->template, $self->content);
     encode_utf8($content);
     $self->content($content);
-    return $self->SUPER::finalize($req);
 }
 
 1;

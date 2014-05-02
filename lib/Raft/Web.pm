@@ -3,13 +3,13 @@ use strict;
 use warnings;
 use utf8;
 
-use Class::Accessor::Lite::Lazy ro => [qw/router middlewares/];
+use Class::Accessor::Lite::Lazy ro => [qw/router/];
 use Raft::Web::Request;
 
 sub to_app {
-    my $class = shift;
-    my $self  = $class->new(@_);
+    my $invocant = shift;
 
+    my $self = ref $invocant ? $invocant : $invocant->new(@_);
     return sub { $self->handle_request(@_) };
 }
 
@@ -17,20 +17,17 @@ sub create_request { Raft::Web::Request->new($_[1]) }
 
 sub handle_request {
     my ($self, $env) = @_;
-    my ($route, $captured, $is_method_not_allowed) = $self->router->match(@{$env}{qw/REQUEST_METHOD PATH_INFO/});
+    my $req = $self->create_request($env);
+    my ($route, $is_method_not_allowed) = $self->router->match($req);
     if ($route) {
-        # middleware
-        $route = $_->wrap($route) for reverse @{ $self->middlewares };
-
-        # req
-        my $req = $self->create_request($env);
-        $req->args($captured);
-
-        # res
         my $res = $route->{response}->{class}->new;
         $res->initialize($self, $route->{response});
+
+        $route->{on_req}->($self, $req, $res) if exists $route->{on_req};
         $res->content( $route->{action}->($self, $req, $res) );
-        return $res->finalize($req);
+        $res->format($req);
+        $route->{on_res}->($self, $req, $res) if exists $route->{on_res};
+        return $res->finalize();
     }
     elsif ($is_method_not_allowed) {
         return $self->res_405;

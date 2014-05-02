@@ -5,6 +5,8 @@ requires 'JSON', '2';
 requires 'Plack::Request::WithEncoding';
 requires 'Plack::Response';
 requires 'Plack::Session';
+requires 'Plack::Util';
+requires 'Router::Boom::Method';
 requires 'Scalar::Util';
 requires 'Text::Xslate', '2.0005';
 requires 'parent';

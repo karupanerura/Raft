@@ -16,9 +16,13 @@ sub initialize {
 
 sub default_content_type { 'text/plain' }
 
-sub finalize {
+sub format :method {
     my ($self, $req) = @_;
     # override it!!
+}
+
+sub finalize {
+    my $self = shift;
     $self->content_length(length $self->content);
     return $self->SUPER::finalize();
 }
